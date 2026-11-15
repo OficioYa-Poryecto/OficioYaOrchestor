@@ -50,4 +50,19 @@ class UserProxyControllerTest {
         assertEquals(502, response.getStatusCode().value());
         assertNotNull(response.getBody());
     }
+
+    @Test
+    void proxyEnrutaWorkersTradesYTradeCategoriesHaciaWorkersService() {
+        UserProxyController controller = new UserProxyController(
+                "http://localhost:59997/",
+                "http://localhost:59998/",
+                "http://localhost:59999/");
+
+        for (String uri : new String[]{"/api/v1/workers/me", "/api/v1/trades", "/api/v1/trade-categories/1"}) {
+            MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
+            request.addHeader("Authorization", "Bearer worker-token");
+            ResponseEntity<byte[]> response = controller.proxy(request, null);
+            assertEquals(502, response.getStatusCode().value());
+        }
+    }
 }

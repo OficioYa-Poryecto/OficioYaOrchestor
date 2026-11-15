@@ -32,18 +32,25 @@ public class UserProxyController {
 
     private final String usersServiceUrl;
     private final String imagesServiceUrl;
+    private final String workersServiceUrl;
     private final RestClient restClient;
 
     public UserProxyController(String usersServiceUrl) {
-        this(usersServiceUrl, "http://localhost:8083");
+        this(usersServiceUrl, "http://localhost:8083", "http://localhost:8082");
+    }
+
+    public UserProxyController(String usersServiceUrl, String imagesServiceUrl) {
+        this(usersServiceUrl, imagesServiceUrl, "http://localhost:8082");
     }
 
     @Autowired
     public UserProxyController(
             @Value("${users.service.url:http://localhost:8080}") String usersServiceUrl,
-            @Value("${images.service.url:http://localhost:8083}") String imagesServiceUrl) {
+            @Value("${images.service.url:http://localhost:8083}") String imagesServiceUrl,
+            @Value("${workers.service.url:https://oficioya-worker-api.azurewebsites.net}") String workersServiceUrl) {
         this.usersServiceUrl = usersServiceUrl.replaceAll("/+$", "");
         this.imagesServiceUrl = imagesServiceUrl.replaceAll("/+$", "");
+        this.workersServiceUrl = workersServiceUrl.replaceAll("/+$", "");
         this.restClient = RestClient.builder().build();
     }
 
@@ -51,7 +58,10 @@ public class UserProxyController {
             "/api/v1/users/**",
             "/api/v1/admin/**",
             "/api/v1/zones/**",
-            "/api/v1/images/**"
+            "/api/v1/images/**",
+            "/api/v1/workers/**",
+            "/api/v1/trades/**",
+            "/api/v1/trade-categories/**"
     })
     public ResponseEntity<byte[]> proxy(
             HttpServletRequest request,
@@ -59,7 +69,7 @@ public class UserProxyController {
 
         String path = request.getRequestURI();
         String query = request.getQueryString();
-        String baseUrl = path.startsWith("/api/v1/images") ? imagesServiceUrl : usersServiceUrl;
+        String baseUrl = resolveBaseUrl(path);
         String targetUrl = baseUrl + path + (query != null ? "?" + query : "");
         HttpMethod method = HttpMethod.valueOf(request.getMethod());
 
@@ -110,5 +120,17 @@ public class UserProxyController {
             log.error("Error en proxy gateway al contactar {}: {}", targetUrl, ex.getMessage());
             return ResponseEntity.status(502).body(("Bad Gateway: " + ex.getMessage()).getBytes());
         }
+    }
+
+    private String resolveBaseUrl(String path) {
+        if (path.startsWith("/api/v1/images")) {
+            return imagesServiceUrl;
+        }
+        if (path.startsWith("/api/v1/workers")
+                || path.startsWith("/api/v1/trades")
+                || path.startsWith("/api/v1/trade-categories")) {
+            return workersServiceUrl;
+        }
+        return usersServiceUrl;
     }
 }

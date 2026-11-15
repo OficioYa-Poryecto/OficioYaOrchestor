@@ -18,6 +18,10 @@ images:
   service:
     url: ${IMAGES_SERVICE_URL:http://localhost:8083}
 
+workers:
+  service:
+    url: ${WORKERS_SERVICE_URL:https://oficioya-worker-api.azurewebsites.net}
+
 identity:
   service:
     # Puerto provisional: se define al desplegar todos los servicios.
