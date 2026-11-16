@@ -22,6 +22,18 @@ workers:
   service:
     url: ${WORKERS_SERVICE_URL:https://oficioya-worker-api.azurewebsites.net}
 
+search:
+  service:
+    url: ${SEARCH_SERVICE_URL:https://oficioya-search-atgjh5gdfcb5b8h3.mexicocentral-01.azurewebsites.net}
+
+reputation:
+  service:
+    url: ${REPUTATION_SERVICE_URL:https://oficioya-reputation-bggabfhkdvaqh4bw.mexicocentral-01.azurewebsites.net}
+
+reporting:
+  service:
+    url: ${REPORTING_SERVICE_URL:https://oficioya-reporting-hvehegasb3hrarc9.mexicocentral-01.azurewebsites.net}
+
 identity:
   service:
     # Puerto provisional: se define al desplegar todos los servicios.
