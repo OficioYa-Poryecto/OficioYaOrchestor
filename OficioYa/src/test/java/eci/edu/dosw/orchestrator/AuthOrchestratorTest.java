@@ -71,7 +71,7 @@ class AuthOrchestratorTest {
 
     private RegisterRequest solicitudDeRegistro(List<String> roles) {
         return new RegisterRequest("Ana", CORREO, CLAVE,
-                List.of(new PhoneDTO("+573001234567", true)), roles);
+                List.of(new PhoneDTO("+573001234567", true)), roles, "1998-05-15");
     }
 
     // ---------- login ----------
@@ -153,6 +153,7 @@ class AuthOrchestratorTest {
         assertEquals("Ana", captor.getValue().name());
         assertEquals(CORREO, captor.getValue().email());
         assertEquals(List.of("CONTRATANTE"), captor.getValue().roles());
+        assertEquals("1998-05-15", captor.getValue().birthDate());
 
         InOrder orden = inOrder(identityClient, userService);
         orden.verify(identityClient).validatePassword(CLAVE);
