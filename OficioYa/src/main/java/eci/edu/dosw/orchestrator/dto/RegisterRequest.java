@@ -12,7 +12,17 @@ public record RegisterRequest(
         @NotBlank(message = "El correo es obligatorio") @Email(message = "El formato de correo no es válido") String email,
         @NotBlank(message = "La contraseña es obligatoria") String password,
         @NotEmpty(message = "Debe ingresar al menos un teléfono") List<@Valid PhoneDTO> phones,
-        @NotEmpty(message = "Debe seleccionar al menos un rol") List<String> roles) {
+        @NotEmpty(message = "Debe seleccionar al menos un rol") List<String> roles,
+        String birthDate) {
+
+    public RegisterRequest(
+            String name,
+            String email,
+            String password,
+            List<PhoneDTO> phones,
+            List<String> roles) {
+        this(name, email, password, phones, roles, null);
+    }
 
     public RegisterRequest {
         if (phones != null) {
