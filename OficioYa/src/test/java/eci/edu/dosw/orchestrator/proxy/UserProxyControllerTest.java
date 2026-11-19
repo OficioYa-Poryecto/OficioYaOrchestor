@@ -76,9 +76,36 @@ class UserProxyControllerTest {
                 "http://localhost:59994",
                 "http://localhost:59995",
                 "http://localhost:59996",
+                "http://localhost:59997",
                 jwtService);
 
         for (String uri : new String[]{"/api/v1/search/workers", "/api/v1/reputation/reputaciones", "/api/v1/reporting/kpis"}) {
+            MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
+            request.addHeader("Authorization", "Bearer token-123");
+            ResponseEntity<byte[]> response = controller.proxy(request, null);
+            assertEquals(502, response.getStatusCode().value());
+        }
+    }
+
+    @Test
+    void proxyEnrutaLocalidadesHaciaUsersYRequestsHaciaServices() {
+        UserProxyController controller = new UserProxyController(
+                "http://localhost:59991",
+                "http://localhost:59992",
+                "http://localhost:59993",
+                "http://localhost:59994",
+                "http://localhost:59995",
+                "http://localhost:59996",
+                "http://localhost:59997",
+                null);
+
+        for (String uri : new String[]{"/api/v1/localities", "/api/v1/localities/123/workers"}) {
+            MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
+            ResponseEntity<byte[]> response = controller.proxy(request, null);
+            assertEquals(502, response.getStatusCode().value());
+        }
+
+        for (String uri : new String[]{"/api/v1/requests/active", "/api/v1/services/workers/abc/stats"}) {
             MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
             request.addHeader("Authorization", "Bearer token-123");
             ResponseEntity<byte[]> response = controller.proxy(request, null);
@@ -96,6 +123,7 @@ class UserProxyControllerTest {
                 "http://localhost:59994",
                 "http://localhost:59995",
                 "http://localhost:59996",
+                "http://localhost:59997",
                 jwtService);
 
         MockHttpServletRequest req1 = new MockHttpServletRequest("PUT", "/api/v1/workers/123e4567-e89b-12d3-a456-426614174000/status");

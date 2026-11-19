@@ -217,6 +217,28 @@ class SecurityIntegrationTest {
         get("/api/cualquier-cosa", null).andExpect(status().isUnauthorized());
     }
 
+    @Test
+    void getLocalidadesEsPublicoPeroDetalleTrabajadoresExigeToken() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.get("/api/v1/localities"))
+                .andExpect(result -> assertNotEquals(401, result.getResponse().getStatus()));
+
+        mvc.perform(MockMvcRequestBuilders.get("/api/v1/localities/123/workers"))
+                .andExpect(status().isUnauthorized());
+
+        mvc.perform(MockMvcRequestBuilders.get("/api/v1/localities/123/workers")
+                .header("Authorization", "Bearer " + token("CONTRATANTE")))
+                .andExpect(result -> assertNotEquals(401, result.getResponse().getStatus()));
+    }
+
+    @Test
+    void rutasDeServiciosYRequestsExigenToken() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.get("/api/v1/requests/active"))
+                .andExpect(status().isUnauthorized());
+
+        mvc.perform(MockMvcRequestBuilders.get("/api/v1/services/workers/123/stats"))
+                .andExpect(status().isUnauthorized());
+    }
+
     // --- cambio de contraseña: el id sale del token, no de la URL ---
     @Test
     void cambiarContrasenaSinTokenDevuelve401() throws Exception {
