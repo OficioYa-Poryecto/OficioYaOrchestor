@@ -105,7 +105,7 @@ class UserProxyControllerTest {
             assertEquals(502, response.getStatusCode().value());
         }
 
-        for (String uri : new String[]{"/api/v1/requests/active", "/api/v1/services/workers/abc/stats"}) {
+        for (String uri : new String[]{"/api/v1/requests/active", "/api/v1/services/workers/abc/stats", "/api/v1/notification/user/abc"}) {
             MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
             request.addHeader("Authorization", "Bearer token-123");
             ResponseEntity<byte[]> response = controller.proxy(request, null);
