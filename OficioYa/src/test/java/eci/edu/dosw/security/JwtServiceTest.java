@@ -22,7 +22,7 @@ class JwtServiceTest {
         Claims claims = servicio.parse(servicio.generateServiceToken());
 
         assertEquals(JwtService.SERVICE_SUBJECT, claims.getSubject());
-        assertEquals(List.of("SERVICE", "SISTEMA"), claims.get("roles", List.class));
+        assertEquals(List.of("SERVICE", "SISTEMA", "ADMIN"), claims.get("roles", List.class));
         assertNotNull(claims.getExpiration());
         assertNotNull(claims.getIssuedAt());
     }

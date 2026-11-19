@@ -34,6 +34,10 @@ reporting:
   service:
     url: ${REPORTING_SERVICE_URL:https://oficioya-reporting-hvehegasb3hrarc9.mexicocentral-01.azurewebsites.net}
 
+services:
+  service:
+    url: ${SERVICES_SERVICE_URL:https://oficioya-service-api-ffa2h9hmc7f0auaw.westus-01.azurewebsites.net}
+
 identity:
   service:
     # Puerto provisional: se define al desplegar todos los servicios.

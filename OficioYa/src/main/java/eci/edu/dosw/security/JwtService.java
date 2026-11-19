@@ -29,12 +29,12 @@ public class JwtService {
         this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
     }
 
-    /** Token interno de vida corta con roles SERVICE y SISTEMA para llamadas entre servicios. */
+    /** Token interno de vida corta con roles SERVICE, SISTEMA y ADMIN para llamadas entre servicios. */
     public String generateServiceToken() {
         Instant now = Instant.now();
         return Jwts.builder()
                 .subject(SERVICE_SUBJECT)
-                .claim("roles", List.of("SERVICE", "SISTEMA"))
+                .claim("roles", List.of("SERVICE", "SISTEMA", "ADMIN"))
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plusMillis(SERVICE_TOKEN_MILLIS)))
                 .signWith(key)
