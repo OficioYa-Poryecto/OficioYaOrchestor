@@ -50,6 +50,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/reputation/**").authenticated()
                 .requestMatchers("/api/v1/reporting/**").authenticated()
                 .requestMatchers("/api/v1/requests/**", "/api/v1/services/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/v1/notification/review-reported", "/api/v1/notification/email").permitAll()
+                .requestMatchers("/api/v1/notification/**", "/api/v1/notifications/**").authenticated()
                 .requestMatchers("/api/v1/admin/**", "/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/v1/worker/**", "/api/worker/**").hasRole("TRABAJADOR")
                 .requestMatchers("/api/v1/users/**", "/api/v1/zones/**").authenticated()

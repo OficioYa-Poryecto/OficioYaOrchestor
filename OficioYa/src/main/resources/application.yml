@@ -36,7 +36,11 @@ reporting:
 
 services:
   service:
-    url: ${SERVICES_SERVICE_URL:https://oficioya-service-api-ffa2h9hmc7f0auaw.westus-01.azurewebsites.net}
+    url: ${SERVICES_SERVICE_URL:https://oficioya-serviceapi-dye8exf8g6eudfbe.chilecentral-01.azurewebsites.net}
+
+notification:
+  service:
+    url: ${NOTIFICATION_SERVICE_URL:https://oficioya-notificationapi-apffc2eygzgcbghp.chilecentral-01.azurewebsites.net}
 
 identity:
   service:

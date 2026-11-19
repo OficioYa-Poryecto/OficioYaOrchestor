@@ -29,6 +29,7 @@ import java.util.Enumeration;
  * - /api/v1/reputation/** -> microservicio de Reputation (${reputation.service.url})
  * - /api/v1/reporting/** -> microservicio de Reporting (${reporting.service.url})
  * - /api/v1/requests/**, /api/v1/services/** -> microservicio de Servicios (${services.service.url})
+ * - /api/v1/notification/**, /api/v1/notifications/** -> microservicio de Notificaciones (${notification.service.url})
  * preservando método HTTP, ruta, query params, payload binario/multipart y cabeceras.
  */
 @RestController
@@ -43,6 +44,7 @@ public class UserProxyController {
     private final String reputationServiceUrl;
     private final String reportingServiceUrl;
     private final String servicesServiceUrl;
+    private final String notificationServiceUrl;
     private final JwtService jwtService;
     private final RestClient restClient;
 
@@ -56,13 +58,20 @@ public class UserProxyController {
 
     public UserProxyController(String usersServiceUrl, String imagesServiceUrl, String workersServiceUrl) {
         this(usersServiceUrl, imagesServiceUrl, workersServiceUrl,
-                "http://localhost:8084", "http://localhost:8085", "http://localhost:8086", "http://localhost:8087", null);
+                "http://localhost:8084", "http://localhost:8085", "http://localhost:8086", "http://localhost:8087", "http://localhost:8088", null);
     }
 
     public UserProxyController(String usersServiceUrl, String imagesServiceUrl, String workersServiceUrl,
             String searchServiceUrl, String reputationServiceUrl, String reportingServiceUrl, JwtService jwtService) {
         this(usersServiceUrl, imagesServiceUrl, workersServiceUrl,
-                searchServiceUrl, reputationServiceUrl, reportingServiceUrl, "http://localhost:8087", jwtService);
+                searchServiceUrl, reputationServiceUrl, reportingServiceUrl, "http://localhost:8087", "http://localhost:8088", jwtService);
+    }
+
+    public UserProxyController(String usersServiceUrl, String imagesServiceUrl, String workersServiceUrl,
+            String searchServiceUrl, String reputationServiceUrl, String reportingServiceUrl,
+            String servicesServiceUrl, JwtService jwtService) {
+        this(usersServiceUrl, imagesServiceUrl, workersServiceUrl,
+                searchServiceUrl, reputationServiceUrl, reportingServiceUrl, servicesServiceUrl, "http://localhost:8088", jwtService);
     }
 
     @Autowired
@@ -73,7 +82,8 @@ public class UserProxyController {
             @Value("${search.service.url:https://oficioya-search-atgjh5gdfcb5b8h3.mexicocentral-01.azurewebsites.net}") String searchServiceUrl,
             @Value("${reputation.service.url:https://oficioya-reputation-bggabfhkdvaqh4bw.mexicocentral-01.azurewebsites.net}") String reputationServiceUrl,
             @Value("${reporting.service.url:https://oficioya-reporting-hvehegasb3hrarc9.mexicocentral-01.azurewebsites.net}") String reportingServiceUrl,
-            @Value("${services.service.url:https://oficioya-service-api-ffa2h9hmc7f0auaw.westus-01.azurewebsites.net}") String servicesServiceUrl,
+            @Value("${services.service.url:https://oficioya-serviceapi-dye8exf8g6eudfbe.chilecentral-01.azurewebsites.net}") String servicesServiceUrl,
+            @Value("${notification.service.url:https://oficioya-notificationapi-apffc2eygzgcbghp.chilecentral-01.azurewebsites.net}") String notificationServiceUrl,
             @Autowired(required = false) JwtService jwtService) {
         this.usersServiceUrl = usersServiceUrl.replaceAll("/+$", "");
         this.imagesServiceUrl = imagesServiceUrl.replaceAll("/+$", "");
@@ -82,6 +92,7 @@ public class UserProxyController {
         this.reputationServiceUrl = reputationServiceUrl.replaceAll("/+$", "");
         this.reportingServiceUrl = reportingServiceUrl.replaceAll("/+$", "");
         this.servicesServiceUrl = servicesServiceUrl.replaceAll("/+$", "");
+        this.notificationServiceUrl = notificationServiceUrl.replaceAll("/+$", "");
         this.jwtService = jwtService;
         this.restClient = RestClient.builder().build();
     }
@@ -100,7 +111,9 @@ public class UserProxyController {
             "/api/v1/reputation/**",
             "/api/v1/reporting/**",
             "/api/v1/requests/**",
-            "/api/v1/services/**"
+            "/api/v1/services/**",
+            "/api/v1/notification/**",
+            "/api/v1/notifications/**"
     })
     public ResponseEntity<byte[]> proxy(
             HttpServletRequest request,
@@ -193,6 +206,9 @@ public class UserProxyController {
         }
         if (path.startsWith("/api/v1/requests") || path.startsWith("/api/v1/services")) {
             return servicesServiceUrl;
+        }
+        if (path.startsWith("/api/v1/notification")) {
+            return notificationServiceUrl;
         }
         return usersServiceUrl;
     }
