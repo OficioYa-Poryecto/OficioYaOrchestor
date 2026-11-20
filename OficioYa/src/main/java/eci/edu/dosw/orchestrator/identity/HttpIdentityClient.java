@@ -65,10 +65,10 @@ public class HttpIdentityClient implements IdentityClient {
 
     private static RestClient crearRestClient(String url) {
         HttpClient httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(15))
+                .connectTimeout(Duration.ofMillis(1500))
                 .build();
         JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory(httpClient);
-        factory.setReadTimeout(Duration.ofSeconds(30));
+        factory.setReadTimeout(Duration.ofSeconds(3));
         return RestClient.builder().baseUrl(url).requestFactory(factory).build();
     }
 
