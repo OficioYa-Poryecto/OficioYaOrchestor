@@ -237,6 +237,16 @@ class SecurityIntegrationTest {
 
         mvc.perform(MockMvcRequestBuilders.get("/api/v1/services/workers/123/stats"))
                 .andExpect(status().isUnauthorized());
+
+        mvc.perform(MockMvcRequestBuilders.get("/api/v1/service/health"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void corsPermiteCualquierPuertoLocalODominioSinDevolver403() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.post("/api/v1/auth/register")
+                .header("Origin", "http://localhost:5174"))
+                .andExpect(result -> assertNotEquals(403, result.getResponse().getStatus()));
     }
 
     // --- cambio de contraseña: el id sale del token, no de la URL ---

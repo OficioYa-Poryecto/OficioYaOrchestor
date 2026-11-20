@@ -89,7 +89,7 @@ public class AuthOrchestrator {
         }
 
         UserDto creado = userService.createProfile(
-                new NewUser(request.name(), request.email(), request.phones(), request.roles(), request.birthDate()));
+                new NewUser(request.name(), request.email(), request.phones(), request.roles(), request.birthDate(), request.localityId()));
 
         try {
             identityClient.createCredential(creado.id(), creado.email(), request.password());

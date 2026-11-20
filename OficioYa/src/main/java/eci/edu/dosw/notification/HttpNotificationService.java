@@ -31,7 +31,7 @@ public class HttpNotificationService implements NotificationService {
 
     @Autowired
     public HttpNotificationService(
-            @Value("${notification.service.url:https://oficioya-notificationapi-apffc2eygzgcbghp.chilecentral-01.azurewebsites.net}") String notificationServiceUrl,
+            @Value("${notification.service.url:https://oficioya-notif-jj.azurewebsites.net}") String notificationServiceUrl,
             @Autowired(required = false) JwtService jwtService) {
         this(RestClient.builder().baseUrl(notificationServiceUrl).build(), jwtService);
     }

@@ -82,8 +82,8 @@ public class UserProxyController {
             @Value("${search.service.url:https://oficioya-search-atgjh5gdfcb5b8h3.mexicocentral-01.azurewebsites.net}") String searchServiceUrl,
             @Value("${reputation.service.url:https://oficioya-reputation-bggabfhkdvaqh4bw.mexicocentral-01.azurewebsites.net}") String reputationServiceUrl,
             @Value("${reporting.service.url:https://oficioya-reporting-hvehegasb3hrarc9.mexicocentral-01.azurewebsites.net}") String reportingServiceUrl,
-            @Value("${services.service.url:https://oficioya-serviceapi-dye8exf8g6eudfbe.chilecentral-01.azurewebsites.net}") String servicesServiceUrl,
-            @Value("${notification.service.url:https://oficioya-notificationapi-apffc2eygzgcbghp.chilecentral-01.azurewebsites.net}") String notificationServiceUrl,
+            @Value("${services.service.url:https://oficioya-service-jj.azurewebsites.net}") String servicesServiceUrl,
+            @Value("${notification.service.url:https://oficioya-notif-jj.azurewebsites.net}") String notificationServiceUrl,
             @Autowired(required = false) JwtService jwtService) {
         this.usersServiceUrl = usersServiceUrl.replaceAll("/+$", "");
         this.imagesServiceUrl = imagesServiceUrl.replaceAll("/+$", "");
@@ -112,7 +112,10 @@ public class UserProxyController {
             "/api/v1/reporting/**",
             "/api/v1/requests/**",
             "/api/v1/services/**",
+            "/api/v1/service/**",
+            "/api/v1/notification",
             "/api/v1/notification/**",
+            "/api/v1/notifications",
             "/api/v1/notifications/**"
     })
     public ResponseEntity<byte[]> proxy(
@@ -131,17 +134,20 @@ public class UserProxyController {
         Enumeration<String> headerNames = request.getHeaderNames();
         while (headerNames != null && headerNames.hasMoreElements()) {
             String name = headerNames.nextElement();
-            if (name.equalsIgnoreCase(HttpHeaders.HOST) || name.equalsIgnoreCase(HttpHeaders.CONTENT_LENGTH)) {
+            if (name.equalsIgnoreCase(HttpHeaders.HOST)
+                    || name.equalsIgnoreCase(HttpHeaders.CONTENT_LENGTH)
+                    || name.equalsIgnoreCase(HttpHeaders.ORIGIN)) {
                 continue;
             }
             Enumeration<String> values = request.getHeaders(name);
             headers.addAll(name, Collections.list(values));
         }
 
-        // Permisos entre servicios: inyectar token con rol SISTEMA/SERVICE si es cambio de estado de trabajador
-        // o si es un evento enviado a Reputation (Service -> Reputation sin usuario detrás)
+        // Permisos entre servicios: inyectar token con rol SISTEMA/SERVICE si es cambio de estado de trabajador,
+        // evento enviado a Reputation o notificación interna (ej. reseña reportada al ADMIN)
         boolean requireSystemToken = (method == HttpMethod.PUT && path.matches("^/api/v1/workers/[^/]+/status.*$"))
-                || path.startsWith("/api/v1/reputation/eventos");
+                || path.startsWith("/api/v1/reputation/eventos")
+                || (method == HttpMethod.POST && path.startsWith("/api/v1/notification"));
 
         if (requireSystemToken && jwtService != null) {
             String systemToken = jwtService.generateServiceToken();
@@ -204,7 +210,7 @@ public class UserProxyController {
         if (path.startsWith("/api/v1/reporting")) {
             return reportingServiceUrl;
         }
-        if (path.startsWith("/api/v1/requests") || path.startsWith("/api/v1/services")) {
+        if (path.startsWith("/api/v1/requests") || path.startsWith("/api/v1/service")) {
             return servicesServiceUrl;
         }
         if (path.startsWith("/api/v1/notification")) {
