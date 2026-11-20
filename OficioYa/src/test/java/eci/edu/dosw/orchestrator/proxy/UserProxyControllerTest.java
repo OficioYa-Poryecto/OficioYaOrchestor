@@ -135,5 +135,11 @@ class UserProxyControllerTest {
         req2.setContent("{\"servicioId\": \"abc\"}".getBytes());
         ResponseEntity<byte[]> resp2 = controller.proxy(req2, "{\"servicioId\": \"abc\"}".getBytes());
         assertEquals(502, resp2.getStatusCode().value());
+
+        MockHttpServletRequest req3 = new MockHttpServletRequest("POST", "/api/v1/notification");
+        req3.addHeader("Origin", "http://localhost:5174");
+        req3.setContent("{\"type\": \"REVIEW_REPORTED\"}".getBytes());
+        ResponseEntity<byte[]> resp3 = controller.proxy(req3, "{\"type\": \"REVIEW_REPORTED\"}".getBytes());
+        assertEquals(502, resp3.getStatusCode().value());
     }
 }

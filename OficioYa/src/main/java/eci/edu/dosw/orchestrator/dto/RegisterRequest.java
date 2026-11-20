@@ -13,7 +13,18 @@ public record RegisterRequest(
         @NotBlank(message = "La contraseña es obligatoria") String password,
         @NotEmpty(message = "Debe ingresar al menos un teléfono") List<@Valid PhoneDTO> phones,
         @NotEmpty(message = "Debe seleccionar al menos un rol") List<String> roles,
-        String birthDate) {
+        String birthDate,
+        Integer localityId) {
+
+    public RegisterRequest(
+            String name,
+            String email,
+            String password,
+            List<PhoneDTO> phones,
+            List<String> roles,
+            String birthDate) {
+        this(name, email, password, phones, roles, birthDate, null);
+    }
 
     public RegisterRequest(
             String name,
@@ -21,7 +32,7 @@ public record RegisterRequest(
             String password,
             List<PhoneDTO> phones,
             List<String> roles) {
-        this(name, email, password, phones, roles, null);
+        this(name, email, password, phones, roles, null, null);
     }
 
     public RegisterRequest {

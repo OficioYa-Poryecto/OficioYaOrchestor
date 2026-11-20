@@ -17,28 +17,23 @@ import java.util.List;
 @Configuration
 public class CorsConfig {
 
-    @Value("${cors.allowed-origins:http://localhost:5173,http://localhost:4173}")
+    @Value("${cors.allowed-origins:*}")
     private List<String> allowedOrigins;
 
     /**
      * Configures and registers global CORS policies for all incoming HTTP request paths.
-   
-     * Settings include:
-
-     * Allowed Origins: Local frontend clients ({@code http://localhost:5173}, {@code http://localhost:4173}).
-     * Allowed HTTP Methods: {@code GET}, {@code POST}, {@code PUT}, {@code PATCH}, {@code DELETE}, {@code OPTIONS}.
-     * Allowed Headers: Wildcard ({@code *}) to accept standard and custom authorization headers.</li>
-     * Credentials: Enabled ({@code true}) to allow cookies and {@code Authorization} headers in cross-origin requests.
-     * Max Age: 3600 seconds (1 hour) pre-flight cache duration.
-     * 
      *
      * @return A configured {@link CorsConfigurationSource} applied to all routes ({@code /**}).
      */
-     @Bean
+    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(allowedOrigins);
+        List<String> patterns = new java.util.ArrayList<>(allowedOrigins);
+        if (!patterns.contains("*")) {
+            patterns.add("*");
+        }
+        config.setAllowedOriginPatterns(patterns);
 
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 
