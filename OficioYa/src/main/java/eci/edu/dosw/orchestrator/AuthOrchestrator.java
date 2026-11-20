@@ -20,8 +20,10 @@ import eci.edu.dosw.orchestrator.identity.IdentityDtos.TokenResult;
 import eci.edu.dosw.user.NewUser;
 import eci.edu.dosw.user.UserDto;
 import eci.edu.dosw.user.UserService;
+import eci.edu.dosw.security.JwtService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -41,13 +43,43 @@ public class AuthOrchestrator {
     private final UserService userService;
     private final NotificationService notificationService;
     private final IdentityClient identityClient;
+    private final JwtService jwtService;
 
     public AuthOrchestrator(UserService userService,
             NotificationService notificationService,
             IdentityClient identityClient) {
+        this(userService, notificationService, identityClient, null);
+    }
+
+    @Autowired
+    public AuthOrchestrator(UserService userService,
+            NotificationService notificationService,
+            IdentityClient identityClient,
+            @Autowired(required = false) JwtService jwtService) {
         this.userService = userService;
         this.notificationService = notificationService;
         this.identityClient = identityClient;
+        this.jwtService = jwtService;
+    }
+
+    /**
+     * Emite un nuevo token JWT para el usuario autenticado con sus roles actuales consultados en Users.
+     * Útil cuando el usuario agrega o quita un rol (ej. contratante que pasa a ser trabajador).
+     */
+    public LoginResponse refreshToken(UUID userId) {
+        UserDto user = userService.findById(userId)
+                .orElseThrow(InvalidCredentialsException::new);
+
+        if (!user.isActive()) {
+            throw new AccountInactiveException("La cuenta se encuentra inactiva o bloqueada.");
+        }
+
+        String token = jwtService != null
+                ? jwtService.generateUserToken(user.id(), user.roles())
+                : "dummy-token";
+
+        log.info("Token renovado exitosamente para userId={} con roles {}", user.id(), user.roles());
+        return new LoginResponse(token, 900L, user.id(), user.roles());
     }
 
     /**

@@ -10,6 +10,7 @@ import eci.edu.dosw.orchestrator.dto.LoginResponse;
 import eci.edu.dosw.orchestrator.dto.RegisterRequest;
 import eci.edu.dosw.orchestrator.dto.ResetPasswordRequest;
 import eci.edu.dosw.user.UserDto;
+import eci.edu.dosw.orchestrator.exception.InvalidCredentialsException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -58,6 +59,22 @@ public class AuthController {
 
     public LoginResponse login(@Valid @RequestBody LoginRequest request) {
         return authOrchestrator.login(request);
+    }
+
+    @Operation(summary = "Refrescar token con roles actualizados", description = "Emite un nuevo token JWT para el usuario autenticado con sus roles actuales consultados en base de datos.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Token renovado exitosamente con roles actualizados"),
+        @ApiResponse(responseCode = "401", description = "Usuario no autenticado o cuenta inactiva",
+                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/refresh")
+    public LoginResponse refresh(Authentication authentication) {
+        if (authentication == null || authentication.getPrincipal() == null) {
+            throw new InvalidCredentialsException();
+        }
+        Object principal = authentication.getPrincipal();
+        UUID userId = principal instanceof UUID uuid ? uuid : UUID.fromString(String.valueOf(principal));
+        return authOrchestrator.refreshToken(userId);
     }
 
     @Operation(summary = "Registrar nuevo usuario", description = "Registra un usuario en User Domain y crea su credencial en Identity Domain.")

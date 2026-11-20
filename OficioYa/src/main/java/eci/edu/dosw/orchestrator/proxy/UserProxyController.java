@@ -1,5 +1,8 @@
 package eci.edu.dosw.orchestrator.proxy;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import eci.edu.dosw.security.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -16,8 +19,11 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClient;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Controlador Proxy / Gateway en el Orquestador.
@@ -47,6 +53,7 @@ public class UserProxyController {
     private final String notificationServiceUrl;
     private final JwtService jwtService;
     private final RestClient restClient;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public UserProxyController(String usersServiceUrl) {
         this(usersServiceUrl, "http://localhost:8083", "http://localhost:8082");
@@ -177,6 +184,31 @@ public class UserProxyController {
                     }
                 });
                 byte[] responseBody = clientResponse.getBody().readAllBytes();
+
+                // Si fue un cambio de roles en /users/me/roles/** y la peticion fue exitosa,
+                // reemitir automaticamente un nuevo JWT con los nuevos roles para no forzar re-login
+                if (path.startsWith("/api/v1/users/me/roles") && clientResponse.getStatusCode().is2xxSuccessful() && jwtService != null) {
+                    try {
+                        JsonNode root = objectMapper.readTree(responseBody);
+                        if (root.has("id") && root.has("roles")) {
+                            UUID userId = UUID.fromString(root.get("id").asText());
+                            List<String> rolesList = new ArrayList<>();
+                            root.get("roles").forEach(r -> rolesList.add(r.asText()));
+                            String newToken = jwtService.generateUserToken(userId, rolesList);
+                            responseHeaders.set("X-Updated-Token", newToken);
+                            responseHeaders.add(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "X-Updated-Token");
+
+                            if (root.isObject()) {
+                                ((ObjectNode) root).put("token", newToken);
+                                responseBody = objectMapper.writeValueAsBytes(root);
+                            }
+                            log.info("Proxy gateway genero token actualizado para userId={} con roles {}", userId, rolesList);
+                        }
+                    } catch (Exception e) {
+                        log.warn("No se pudo inyectar nuevo token tras cambio de rol: {}", e.getMessage());
+                    }
+                }
+
                 return ResponseEntity.status(clientResponse.getStatusCode())
                         .headers(responseHeaders)
                         .body(responseBody);
