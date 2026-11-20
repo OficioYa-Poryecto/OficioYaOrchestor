@@ -36,11 +36,11 @@ reporting:
 
 services:
   service:
-    url: ${SERVICES_SERVICE_URL:https://oficioya-service-jj.azurewebsites.net}
+    url: ${SERVICES_SERVICE_URL:https://ofioya-serviceapi-achydycpa3fgbsch.chilecentral-01.azurewebsites.net}
 
 notification:
   service:
-    url: ${NOTIFICATION_SERVICE_URL:https://oficioya-notif-jj.azurewebsites.net}
+    url: ${NOTIFICATION_SERVICE_URL:https://oficioya-notificationapi-apffc2eygzgcbghp.brazilsouth-01.azurewebsites.net}
 
 identity:
   service:

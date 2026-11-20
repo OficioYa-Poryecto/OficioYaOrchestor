@@ -89,8 +89,8 @@ public class UserProxyController {
             @Value("${search.service.url:https://oficioya-search-atgjh5gdfcb5b8h3.mexicocentral-01.azurewebsites.net}") String searchServiceUrl,
             @Value("${reputation.service.url:https://oficioya-reputation-bggabfhkdvaqh4bw.mexicocentral-01.azurewebsites.net}") String reputationServiceUrl,
             @Value("${reporting.service.url:https://oficioya-reporting-hvehegasb3hrarc9.mexicocentral-01.azurewebsites.net}") String reportingServiceUrl,
-            @Value("${services.service.url:https://oficioya-service-jj.azurewebsites.net}") String servicesServiceUrl,
-            @Value("${notification.service.url:https://oficioya-notif-jj.azurewebsites.net}") String notificationServiceUrl,
+            @Value("${services.service.url:https://ofioya-serviceapi-achydycpa3fgbsch.chilecentral-01.azurewebsites.net}") String servicesServiceUrl,
+            @Value("${notification.service.url:https://oficioya-notificationapi-apffc2eygzgcbghp.brazilsouth-01.azurewebsites.net}") String notificationServiceUrl,
             @Autowired(required = false) JwtService jwtService) {
         this.usersServiceUrl = usersServiceUrl.replaceAll("/+$", "");
         this.imagesServiceUrl = imagesServiceUrl.replaceAll("/+$", "");
